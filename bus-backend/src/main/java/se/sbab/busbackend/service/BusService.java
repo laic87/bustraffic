@@ -1,6 +1,7 @@
 package se.sbab.busbackend.service;
 
 public interface BusService {
-
-    void getBussTraffic();
+    Object getAllBusStop();
+    void getNameOfBusStop();
+    void getTopTenMostStops();
 }
