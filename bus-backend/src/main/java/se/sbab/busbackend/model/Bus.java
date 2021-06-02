@@ -15,14 +15,6 @@ public class Bus {
     @JsonProperty("JourneyPatternPointNumber")
     private String journeyPatternPointNumber;
 
-    public Bus() { }
-
-    public Bus(String lineNumber, String directioNumber, String journeyPatternPointNumber) {
-        this.lineNumber = lineNumber;
-        this.directioNumber = directioNumber;
-        this.journeyPatternPointNumber = journeyPatternPointNumber;
-    }
-
     public String getLineNumber() {
         return lineNumber;
     }
