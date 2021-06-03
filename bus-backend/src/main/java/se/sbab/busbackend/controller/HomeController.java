@@ -1,5 +1,6 @@
 package se.sbab.busbackend.controller;
 
+import org.json.JSONException;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -26,7 +27,7 @@ public class HomeController {
     private BusStopServiceImpl busStopService;
 
     @GetMapping(value = "/bus", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Object getTraffic() {
+    public Object getTraffic() throws JSONException {
         logger.info("Controller getTraffic function got called...");
         return busJourneyLineService.getBusJourneyLine();
     }

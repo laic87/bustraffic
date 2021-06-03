@@ -1,5 +1,7 @@
 package se.sbab.busbackend.service;
 
+import org.json.JSONException;
+
 public interface BusJourneyLineService {
-    Object getBusJourneyLine();
+    Object getBusJourneyLine() throws JSONException;
 }

@@ -5,6 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Bus {
+    public Bus(String lineNumber, String journeyPatternPointNumber) {
+        this.lineNumber = lineNumber;
+        this.journeyPatternPointNumber = journeyPatternPointNumber;
+    }
 
     @JsonProperty("LineNumber")
     private String lineNumber;

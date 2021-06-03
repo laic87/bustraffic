@@ -1,14 +1,22 @@
 package se.sbab.busbackend.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import se.sbab.busbackend.model.Bus;
 import se.sbab.busbackend.model.Result;
+import se.sbab.busbackend.utility.SimpleJSON;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class BusJourneyLineServiceImpl implements BusJourneyLineService {
@@ -24,14 +32,26 @@ public class BusJourneyLineServiceImpl implements BusJourneyLineService {
     private RestTemplate restTemplate;
 
     @Override
-    public Object getBusJourneyLine() {
+    public Object getBusJourneyLine() throws JSONException {
         HashMap<String, HashMap> hashmap = restTemplate.getForObject(BASE_URL + SL_API, HashMap.class);
-        HashMap<String, HashMap> responseDataHashMap = hashmap.get("ResponseData");
-        List<Result> result = (List<Result>) responseDataHashMap.get("Result");
-        System.out.println(result.size());
-        //List<Result> newResult = new ArrayList<>();
+        final Object o1 = hashmap.get("ResponseData").get("Result");
+        final JSONArray o = (JSONArray) SimpleJSON.toJSON(o1);
+        ArrayList<Bus> buses =  new ArrayList<Bus>();
+        for (int i=0; i < o.length(); i++) {
+            final JSONObject jsonObject = o.getJSONObject(i);
+            final Bus bus = new Bus(jsonObject.getString("JourneyPatternPointNumber"), jsonObject.getString("LineNumber"));
+            buses.add(bus);
+        }
+
+        Map<String, List<Bus>> busMapByJourney;
+        busMapByJourney = buses.stream().collect(Collectors.groupingBy(bus -> bus.getJourneyPatternPointNumber()));
+
+
+
+        //List<Result> newResult = new 
+        // ArrayList<>();
         //System.out.println(newResult);
         //System.out.println(BASE_URL + SL_API);
-        return responseDataHashMap;
+        return o1;
     }
 }
