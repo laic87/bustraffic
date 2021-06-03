@@ -6,6 +6,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BusStop {
 
+    public BusStop(String stopPointNumber, String stopPointName) {
+        this.stopPointNumber = stopPointNumber;
+        this.stopPointName = stopPointName;
+    }
+
     @JsonProperty("StopPointNumber")
     private String stopPointNumber;
 

@@ -9,14 +9,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import se.sbab.busbackend.model.Bus;
+import se.sbab.busbackend.model.BusStop;
 import se.sbab.busbackend.model.Result;
 import se.sbab.busbackend.utility.SimpleJSON;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static java.util.Arrays.*;
+import static java.util.stream.Collectors.toMap;
 
 @Service
 public class BusJourneyLineServiceImpl implements BusJourneyLineService {
@@ -25,6 +27,9 @@ public class BusJourneyLineServiceImpl implements BusJourneyLineService {
     private final static String MODEL = "&model=JourneyPatternPointOnLine&DefaultTransportModeCode=BUS";
     private final static String SL_API = API_KEY + MODEL;
 
+    private final static String STOP_MODEL = "&model=stop&DefaultTransportModeCode=BUS";
+    private final static String SL_STOP_API = API_KEY + STOP_MODEL;
+
     @Value("${sl.url}")
     private String BASE_URL;
 
@@ -32,26 +37,51 @@ public class BusJourneyLineServiceImpl implements BusJourneyLineService {
     private RestTemplate restTemplate;
 
     @Override
-    public Object getBusJourneyLine() throws JSONException {
+    public LinkedHashMap<String, List<Bus>> getBusJourneyLine() throws JSONException {
         HashMap<String, HashMap> hashmap = restTemplate.getForObject(BASE_URL + SL_API, HashMap.class);
+        HashMap<String, HashMap> stopHashMap = restTemplate.getForObject(BASE_URL + SL_STOP_API, HashMap.class);
+
+        final Object o2 = stopHashMap.get("ResponseData").get("Result");
+        final JSONArray o3 = (JSONArray) SimpleJSON.toJSON(o2);
+        ArrayList<BusStop> stops =  new ArrayList<BusStop>();
+        for (int i=0; i < o3.length(); i++) {
+            final JSONObject jsonObject = o3.getJSONObject(i);
+            final BusStop bus = new BusStop(jsonObject.getString("StopPointNumber"), jsonObject.getString("StopPointName"));
+            stops.add(bus);
+        }
+
+
+
         final Object o1 = hashmap.get("ResponseData").get("Result");
         final JSONArray o = (JSONArray) SimpleJSON.toJSON(o1);
         ArrayList<Bus> buses =  new ArrayList<Bus>();
         for (int i=0; i < o.length(); i++) {
             final JSONObject jsonObject = o.getJSONObject(i);
-            final Bus bus = new Bus(jsonObject.getString("JourneyPatternPointNumber"), jsonObject.getString("LineNumber"));
+            String journeyPatternPointNumber = jsonObject.getString("JourneyPatternPointNumber");
+            List<BusStop> busStopList = stops.stream()
+                    .filter(busStop -> busStop.getStopPointNumber().equals(journeyPatternPointNumber))
+                    .collect(Collectors.toList());
+            BusStop busStop = busStopList.isEmpty() ? null : busStopList.get(0);
+            String lineNumber = jsonObject.getString("LineNumber");
+            String stopName = busStop != null ? busStop.getStopPointName() : "Nothing";
+            final Bus bus = new Bus(lineNumber, stopName);
             buses.add(bus);
         }
 
         Map<String, List<Bus>> busMapByJourney;
-        busMapByJourney = buses.stream().collect(Collectors.groupingBy(bus -> bus.getJourneyPatternPointNumber()));
+        busMapByJourney = buses.stream().collect(Collectors.groupingBy(bus -> bus.getLineNumber()));
 
+        LinkedHashMap<String, List<Bus>> collect = busMapByJourney.entrySet().stream()
+                .sorted(Comparator.<Map.Entry<String, List<Bus>>>comparingInt(entry -> entry.getValue().size()).reversed())
+                .limit(10).collect(toMap(
+                Map.Entry::getKey,
+                Map.Entry::getValue,
+                (key, value) -> {
+                    throw new AssertionError();
+                },
+                LinkedHashMap::new
+        ));
 
-
-        //List<Result> newResult = new 
-        // ArrayList<>();
-        //System.out.println(newResult);
-        //System.out.println(BASE_URL + SL_API);
-        return o1;
+        return collect;
     }
 }
