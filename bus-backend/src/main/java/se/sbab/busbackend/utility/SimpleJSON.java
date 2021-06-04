@@ -9,10 +9,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 public class SimpleJSON {
-    /**
-     * @author: Sheharyar Naseer (@sheharyarn)
-     * @license: MIT
-     */
 
     public static Object toJSON(Object object) throws JSONException {
         if (object instanceof HashMap) {

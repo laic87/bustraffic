@@ -1,6 +1,5 @@
 package se.sbab.busbackend.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,14 +9,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import se.sbab.busbackend.model.Bus;
 import se.sbab.busbackend.model.BusStop;
-import se.sbab.busbackend.model.Result;
 import se.sbab.busbackend.utility.SimpleJSON;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.util.Arrays.*;
 import static java.util.stream.Collectors.toMap;
 
 @Service

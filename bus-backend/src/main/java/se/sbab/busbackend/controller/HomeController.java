@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import se.sbab.busbackend.model.Bus;
 import se.sbab.busbackend.service.BusJourneyLineServiceImpl;
-import se.sbab.busbackend.service.BusStopServiceImpl;
 
 import org.slf4j.Logger;
 
@@ -27,20 +26,9 @@ public class HomeController {
     @Autowired
     private BusJourneyLineServiceImpl busJourneyLineService;
 
-    @Autowired
-    private BusStopServiceImpl busStopService;
-
     @GetMapping(value = "/bus", produces = MediaType.APPLICATION_JSON_VALUE)
     public LinkedHashMap<String, List<Bus>> getTraffic() throws JSONException {
         logger.info("Controller getTraffic function got called...");
         return busJourneyLineService.getBusJourneyLine();
     }
-
-    @GetMapping(value = "/busstop", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Object getStops() {
-        logger.info("Controller gettBusStop function got called...");
-        return busStopService.getBussStop();
-    }
-
-
 }
