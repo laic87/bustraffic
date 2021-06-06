@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Bus {
-    public Bus(String lineNumber, String journeyPatternPointNumber) {
+public class BusLine {
+    public BusLine(String lineNumber, String journeyPatternPointNumber) {
         this.lineNumber = lineNumber;
         this.journeyPatternPointNumber = journeyPatternPointNumber;
     }

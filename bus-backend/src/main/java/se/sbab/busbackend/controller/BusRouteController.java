@@ -8,27 +8,27 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import se.sbab.busbackend.model.Bus;
-import se.sbab.busbackend.service.BusJourneyLineServiceImpl;
+import se.sbab.busbackend.model.BusLine;
 
 import org.slf4j.Logger;
+import se.sbab.busbackend.service.BusRouteServiceImpl;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 
 @RestController
 @CrossOrigin("http://localhost:3000")
-@RequestMapping("/")
-public class HomeController {
+@RequestMapping("/busapi")
+public class BusRouteController {
 
-    private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
+    private static final Logger logger = LoggerFactory.getLogger(BusRouteController.class);
 
     @Autowired
-    private BusJourneyLineServiceImpl busJourneyLineService;
+    private BusRouteServiceImpl busRouteServiceImpl;
 
-    @GetMapping(value = "/bus", produces = MediaType.APPLICATION_JSON_VALUE)
-    public LinkedHashMap<String, List<Bus>> getTraffic() throws JSONException {
+    @GetMapping(value = "/routes", produces = MediaType.APPLICATION_JSON_VALUE)
+    public LinkedHashMap<String, List<BusLine>> getTraffic() throws JSONException {
         logger.info("Controller getTraffic function got called...");
-        return busJourneyLineService.getBusJourneyLine();
+        return busRouteServiceImpl.getBusRoutes();
     }
 }
