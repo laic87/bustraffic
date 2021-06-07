@@ -4,6 +4,7 @@ import org.json.JSONException;
 import se.sbab.busbackend.model.BusStop;
 import se.sbab.busbackend.model.BusLine;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 

@@ -28,7 +28,7 @@ public class BusRouteController {
 
     @GetMapping(value = "/routes", produces = MediaType.APPLICATION_JSON_VALUE)
     public LinkedHashMap<String, List<BusLine>> getTraffic() throws JSONException {
-        logger.info("Controller getTraffic function got called...");
+        logger.debug("Controller getTraffic function got called...");
         return busRouteServiceImpl.getBusRoutes();
     }
 }

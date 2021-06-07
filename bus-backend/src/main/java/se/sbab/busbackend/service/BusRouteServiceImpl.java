@@ -3,6 +3,8 @@ package se.sbab.busbackend.service;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,8 @@ import static java.util.stream.Collectors.toMap;
 @Service
 public class BusRouteServiceImpl implements BusRouteService {
 
+    private static final Logger logger = LoggerFactory.getLogger(BusRouteServiceImpl.class);
+
     private final static String API_KEY = "key=5da196d47f8f4e5facdb68d2e25b9eae";
     private final static String MODEL = "&model=JourneyPatternPointOnLine&DefaultTransportModeCode=BUS";
     private final static String SL_API = API_KEY + MODEL;
@@ -34,17 +38,19 @@ public class BusRouteServiceImpl implements BusRouteService {
 
     @Override
     public LinkedHashMap<String, List<BusLine>> getBusRoutes() throws JSONException {
+        logger.info("fetching bus routes...");
         HashMap<String, HashMap> busRoutesHashMap = restTemplate.getForObject(BASE_URL + SL_API, HashMap.class);
 
-        List<BusStop> busStopList = getStopsByName();
+        List<BusStop> stops  = getStopsByName();
 
+        ArrayList<BusStop> names = new ArrayList<>();
         final Object busRoutesObject = busRoutesHashMap.get("ResponseData").get("Result");
         final JSONArray busRoutesJSONArray = (JSONArray) SimpleJSON.toJSON(busRoutesObject);
-        ArrayList<BusLine> buses =  new ArrayList<BusLine>();
+        ArrayList<BusLine> buses =  new ArrayList<>();
         for (int i = 0; i < busRoutesJSONArray.length(); i++) {
             final JSONObject jsonObject = busRoutesJSONArray.getJSONObject(i);
             String journeyPatternPointNumber = jsonObject.getString("JourneyPatternPointNumber");
-            busStopList.stream()
+            List<BusStop> busStopList = stops.stream()
                     .filter(busStop -> busStop.getStopPointNumber().equals(journeyPatternPointNumber))
                     .collect(Collectors.toList());
             BusStop busStop = busStopList.isEmpty() ? null : busStopList.get(0);
@@ -59,10 +65,11 @@ public class BusRouteServiceImpl implements BusRouteService {
 
     @Override
     public List<BusStop> getStopsByName() throws JSONException {
+        logger.info("fetching bus stops...");
         HashMap<String, HashMap> busStopHashMap = restTemplate.getForObject(BASE_URL + SL_STOP_API, HashMap.class);
         final Object busStopObject = busStopHashMap.get("ResponseData").get("Result");
         final JSONArray busStopJSONArray = (JSONArray) SimpleJSON.toJSON(busStopObject);
-        ArrayList<BusStop> stops =  new ArrayList<BusStop>();
+        List<BusStop> stops =  new ArrayList<BusStop>();
         for (int i = 0; i < busStopJSONArray.length(); i++) {
             final JSONObject jsonObject = busStopJSONArray.getJSONObject(i);
             final BusStop bus = new BusStop(jsonObject.getString("StopPointNumber"), jsonObject.getString("StopPointName"));
@@ -72,12 +79,12 @@ public class BusRouteServiceImpl implements BusRouteService {
     }
 
     private LinkedHashMap<String, List<BusLine>> getTopTenRoutes(List<BusLine> busLines) {
-        System.out.println("Time to get top 10!");
+        logger.info("getTopTenRoutes function got called");
 
         Map<String, List<BusLine>> busMapByJourney;
-        busMapByJourney = busLines.stream().collect(Collectors.groupingBy(busLine -> busLine.getLineNumber()));
+        busMapByJourney = busLines.stream().collect(Collectors.groupingBy(BusLine::getLineNumber));
 
-        LinkedHashMap<String, List<BusLine>> collectTopTen = busMapByJourney.entrySet().stream()
+        return busMapByJourney.entrySet().stream()
                 .sorted(Comparator.<Map.Entry<String, List<BusLine>>>comparingInt(entry -> entry.getValue().size()).reversed())
                 .limit(10).collect(toMap(
                         Map.Entry::getKey,
@@ -87,8 +94,5 @@ public class BusRouteServiceImpl implements BusRouteService {
                         },
                         LinkedHashMap::new
                 ));
-
-        return collectTopTen;
     }
-
 }
